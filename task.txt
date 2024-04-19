@@ -1,0 +1,68 @@
+Task Description:
+- Develop a web application following the MVC design pattern.(Meaning
+3 different Levels for Routing, Business Logic, and DB calls for each call
+Functionality)
+- Interface with a MySQL database using SQLAlchemy for ORM.
+- Implement field validation and dependency injection as needed.
+- Use Python and FastAPI for building the application.
+- **External API**: OpenWeatherMap API for fetching real-time weather
+data.
+
+Application Requirements:
+The assignment involves building a backend for a simple weather
+forecasting application.
+You will need to implement several endpoints, integrate an external
+weather service API, and develop a custom algorithm to provide
+personalized weather recommendations based on user preferences.
+
+Implement the following endpoints:
+- `POST /users`: Register a new user with username and password.
+- `GET /users/{user_id}`: Retrieve user details by user ID.
+- `POST /preferences/{user_id}`: Set weather preferences for a user (like
+preferred temperature range, weather conditions, etc.).
+- `GET /weather/{user_id}`: Fetch and display the weather based on the
+user's saved preferences.
+- `GET /forecast/custom/{user_id}`: Fetch a 5-day weather forecast and
+apply the custom algorithm to recommend the best day based on user
+preferences.
+
+External API Integration
+- Use the OpenWeatherMap API to fetch current weather and a 5-day
+forecast.
+- You need to manage API keys securely.
+- Handle the variability in API response schema gracefully.
+
+Algorithm Development
+- Develop an algorithm that processes the 5-day weather forecast data
+to determine the best day for an outdoor activity based on the user's
+weather preferences.
+- Consider factors such as temperature, chance of rain, and
+user-specific conditions like avoiding overly windy days.
+
+Deliverables
+- A Git repository containing all code with a README.md explaining how
+to set up and run the application.
+- Include a `requirements.txt` for any dependencies.
+- Ensure the application has basic error handling and validation.
+
+Evaluation Criteria
+- Correctness of implementation.
+- Code quality and readability.
+- Proper use of FastAPI and SQLAlchemy features.
+- Handling of edge cases and potential errors.
+- Efficiency of the custom algorithm.
+
+Additional Requirements:
+- Ensure the implementation of both SQLAlchemy and Pydantic
+models for each endpoint includes extensive type validation to
+guarantee the accuracy and integrity of data being processed.
+- Documentation and comments should be comprehensive,
+elucidating the purpose and functionality of the code.
+- The focus is on backend development; thus, a simple
+command-line interface or minimal API testing via tools like
+Swagger UI is sufficient for interaction
+- Keep your API keys secure and do not expose sensitive
+information in your code.
+- The focus is on backend development; thus, a simple
+command-line interface or minimal API testing via tools like
+Swagger UI is sufficient for interaction.

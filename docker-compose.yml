@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  uvicorn:
+    container_name: uvicorn_weather
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    image: uvicorn_weather
+    command:
+      - /bin/sh
+      - -c
+      - |
+        alembic upgrade head
+        uvicorn --host 0.0.0.0 --port 80 --reload app.main:app
+    ports:
+      - "80:80"
+    volumes:
+      - ./web:/home/web/
+    env_file:
+      - .env
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    container_name: db_weather
+    image: mysql
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+    volumes:
+      - mysql_db:/var/lib/mysql
+    env_file:
+      - .env
+    restart: "no"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 10s
+      retries: 10
+
+volumes:
+  mysql_db:
