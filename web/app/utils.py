@@ -16,12 +16,6 @@ OPENWEATHERMAP_CURRENT_WEATHER_URL = f"{OPENWEATHERMAP_BASE_URL}/data/2.5/weathe
 OPENWEATHERMAP_FORECAST_URL = f"{OPENWEATHERMAP_BASE_URL}/data/2.5/forecast"
 
 
-def raise_openweather_exception(message: str = None):
-    if message is None:
-        message = "OpenWeather error, please try again."
-    raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=message)
-
-
 def hash_password(password: str) -> str:
     """Hash user password"""
     return pwd_context.hash(password)
@@ -46,12 +40,15 @@ def extract_weather_data(data: dict) -> schemas.WeatherForecast:
             "description": data["weather"][0]["description"].capitalize(),
             "wind_speed": data["wind"]["speed"],
             "humidity": main_data["humidity"],
-            "visibility": data["visibility"],
+            "visibility": data.get("visibility", None),
             "pressure": main_data["pressure"],
             "dt": datetime.fromtimestamp(data["dt"]).astimezone(timezone.utc),
         }
-    except (KeyError, IndexError):
-        raise_openweather_exception()
+    except (KeyError, IndexError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="OpenWeather could not provide enough information for your location.",
+        ) from exc
 
     return weather_data
 
@@ -79,11 +76,17 @@ def get_current_weather_for_user(user_id: int, db: Session) -> schemas.WeatherFo
         },
     )
     if response.status_code != 200:
-        raise_openweather_exception()
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="OpenWeather error, please try again.",
+        )
 
     response = response.json()
     if int(response.get("cod", 0)) != 200:
-        raise_openweather_exception()
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="OpenWeather error, please try again.",
+        )
 
     weather_data = extract_weather_data(data=response)
     return schemas.WeatherForecast(**weather_data)
@@ -115,14 +118,22 @@ def get_5_day_weather_for_user(user_id: int, db: Session) -> schemas.WeatherFore
         },
     )
     if response.status_code != 200:
-        raise_openweather_exception()
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="OpenWeather error, please try again.",
+        )
 
     response = response.json()
     if int(response.get("cod", 0)) != 200:
-        raise_openweather_exception()
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="OpenWeather error, please try again.",
+        )
+
     if not response.get("list"):
-        raise_openweather_exception(
-            message="OpenWeather couldn't provide future weather for this location."
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="OpenWeather couldn't provide future weather for this location.",
         )
 
     # Extract only one unique forecast per day from list of forecasts
@@ -233,8 +244,8 @@ def pick_best_forecast_for_user(
         forecasts_score.items(), key=lambda x: x[1], reverse=True
     )
 
-    # for ind, score in sorted_forecasts:
-    #     print({**forecasts[ind].model_dump(), "SCORE": score})
+    for ind, score in sorted_forecasts:
+        print({**forecasts[ind].model_dump(), "SCORE": score})
 
     best_forcasts = [sorted_forecasts[0]]
     best_score = sorted_forecasts[0][1]

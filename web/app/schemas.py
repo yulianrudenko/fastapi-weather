@@ -68,7 +68,7 @@ class WeatherForecast(BaseModel):
     description: str
     wind_speed: float = Field(description="Wind speed (m/s)")
     humidity: float =  Field(description="Humidity (percentage)")
-    visibility: float = Field(description="Visibility (meters)")
+    visibility: float | None = Field(description="Visibility (meters)")
     pressure: float = Field(description="Pressure (hPa)")
     dt: datetime
 
